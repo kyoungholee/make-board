@@ -1,32 +1,43 @@
-import { useState } from "react";
 import {
-  Wrapper,
-  Title,
-  WriterWrapper,
-  Writer,
+  Address,
+  ButtonWrapper,
+  Contents,
+  ImageWrapper,
   InputWrapper,
   Label,
-  Password,
-  Subject,
-  Contents,
-  SearchButton,
-  ZipcodeWrapper,
-  AddressWrapper,
-  Address,
-  Youtube,
-  ImageWrapper,
-  UploadButton,
   OptionWrapper,
-  Zipcode,
+  Password,
   RadioButton,
   RadioLabel,
-  ButtonWrapper,
+  SearchButton,
+  Subject,
   SubmitButton,
+  Title,
+  UploadButton,
+  Wrapper,
+  Writer,
+  WriterWrapper,
+  Youtube,
+  Zipcode,
+  ZipcodeWrapper,
   Error,
 } from "../../../styles/boardNew";
+import { useState } from "react";
+import { gql, useMutation } from "@apollo/client";
+import { useRouter } from "next/router";
 
-export default function BoardNewPage() {
-  const [name, setName] = useState("");
+const CREATE_BOARD = gql`
+  mutation createBoard($createBoardInput: CreateBoardInput!) {
+    createBoard(createBoardInput: $createBoardInput) {
+      _id
+    }
+  }
+`;
+
+export default function BoardsNewPage() {
+  const router = useRouter();
+
+  const [writer, setWriter] = useState("");
   const [password, setPassword] = useState("");
   const [title, setTitle] = useState("");
   const [contents, setContents] = useState("");
@@ -36,112 +47,121 @@ export default function BoardNewPage() {
   const [titleError, setTitleError] = useState("");
   const [contentsError, setContentsError] = useState("");
 
-  const handleChangeName = (e) => {
-    setName(e.target.value);
-    if (e.target.value !== "") {
+  const [createBoard] = useMutation(CREATE_BOARD);
+
+  const onChangeWriter = (event) => {
+    setWriter(event.target.value);
+    if (event.target.value !== "") {
       setWriterError("");
     }
   };
 
-  const handleChangePassword = (e) => {
-    setPassword(e.target.value);
-    if (e.target.value !== "") {
+  const onChangePassword = (event) => {
+    setPassword(event.target.value);
+    if (event.target.value !== "") {
       setPasswordError("");
     }
   };
 
-  const handleChangeTitle = (e) => {
-    setTitle(e.target.value);
-    if (e.target.value !== "") {
+  const onChangeTitle = (event) => {
+    setTitle(event.target.value);
+    if (event.target.value !== "") {
       setTitleError("");
     }
   };
 
-  const handleChangeContents = (e) => {
-    setContents(e.target.value);
-    if (e.target.value !== "") {
+  const onChangeContents = (event) => {
+    setContents(event.target.value);
+    if (event.target.value !== "") {
       setContentsError("");
     }
   };
 
-  const SubmitChange = (e) => {
-    e.preventDefault();
-
-    if (!name) {
-      setWriterError("이름이 없습니다.");
+  const onClickSubmit = async () => {
+    if (!writer) {
+      setWriterError("작성자를 입력해주세요.");
     }
     if (!password) {
-      setPasswordError("비밀번호가 없습니다.");
+      setPasswordError("비밀번호를 입력해주세요.");
     }
     if (!title) {
-      setTitleError("제목이 없습니다.");
+      setTitleError("제목을 입력해주세요.");
     }
     if (!contents) {
-      setContentsError("내용이 없습니다.");
+      setContentsError("내용을 입력해주세요.");
     }
-
-    if (name && password && title && contents) {
-      alert("게시글이 등록되었습니다.");
+    if (writer && password && title && contents) {
+      try {
+        const result = await createBoard({
+          variables: {
+            createBoardInput: {
+              writer,
+              password,
+              title,
+              contents,
+            },
+          },
+        });
+        console.log(result.data.createBoard._id);
+        console.log(result);
+        // router.push(`/board/${result.data.createBoard._id}`);
+      } catch (error) {
+        alert(error.message);
+      }
     }
   };
 
   return (
     <Wrapper>
-      <Title>게시물등록</Title>
+      <Title>게시글 등록</Title>
       <WriterWrapper>
         <InputWrapper>
-          <Label htmlFor="name">작성자</Label>
+          <Label>작성자</Label>
           <Writer
             type="text"
-            id="name"
-            onChange={handleChangeName}
-            placeholder="이름을 적어주세요"
+            placeholder="이름을 적어주세요."
+            onChange={onChangeWriter}
           />
           <Error>{writerError}</Error>
         </InputWrapper>
         <InputWrapper>
-          <Label htmlFor="password">비밀번호</Label>
+          <Label>비밀번호</Label>
           <Password
             type="password"
-            id="password"
-            onChange={handleChangePassword}
-            placeholder="비밀번호를 적어주세요"
+            placeholder="비밀번호를 작성해주세요."
+            onChange={onChangePassword}
           />
           <Error>{passwordError}</Error>
         </InputWrapper>
       </WriterWrapper>
-
       <InputWrapper>
-        <Label htmlFor="title">제목</Label>
+        <Label>제목</Label>
         <Subject
           type="text"
-          id="title"
-          onChange={handleChangeTitle}
           placeholder="제목을 작성해주세요."
+          onChange={onChangeTitle}
         />
         <Error>{titleError}</Error>
       </InputWrapper>
       <InputWrapper>
-        <Label htmlFor="content">내용</Label>
+        <Label>내용</Label>
         <Contents
-          type="text"
-          id="content"
-          onChange={handleChangeContents}
           placeholder="내용을 작성해주세요."
+          onChange={onChangeContents}
         />
         <Error>{contentsError}</Error>
       </InputWrapper>
-      <AddressWrapper>
-        <Label htmlFor="address">주소</Label>
+      <InputWrapper>
+        <Label>주소</Label>
         <ZipcodeWrapper>
-          <Zipcode type="text" id="address" placeholder="07250" />
+          <Zipcode placeholder="07250" />
           <SearchButton>우편번호 검색</SearchButton>
         </ZipcodeWrapper>
         <Address />
         <Address />
-      </AddressWrapper>
+      </InputWrapper>
       <InputWrapper>
-        <Label htmlFor="video">유튜브</Label>
+        <Label>유튜브</Label>
         <Youtube placeholder="링크를 복사해주세요." />
       </InputWrapper>
       <ImageWrapper>
@@ -158,7 +178,7 @@ export default function BoardNewPage() {
         <RadioLabel htmlFor="image">사진</RadioLabel>
       </OptionWrapper>
       <ButtonWrapper>
-        <SubmitButton onClick={SubmitChange}>등록하기</SubmitButton>
+        <SubmitButton onClick={onClickSubmit}>등록하기</SubmitButton>
       </ButtonWrapper>
     </Wrapper>
   );

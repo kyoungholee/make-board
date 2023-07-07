@@ -53,9 +53,6 @@ export const Label = styled.div`
 export const InputWrapper = styled.div`
   padding-top: 40px;
 `;
-export const AddressWrapper = styled.div`
-  padding-top: 40px;
-`;
 
 export const Subject = styled.input`
   width: 996px;
@@ -172,7 +169,7 @@ export const SubmitButton = styled.button`
 `;
 
 export const Error = styled.div`
+  padding-top: 10px;
+  font-size: 14px;
   color: red;
-  padding-top: 3px;
-  font-size: 11px;
 `;
