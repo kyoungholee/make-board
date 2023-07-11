@@ -8,11 +8,11 @@ export default function BoardList() {
   const { data } = useQuery(FETCH_BOARDS);
 
   const onClickMoveToBoardNew = () => {
-    router.push("/boards/new");
+    router.push("/board/new");
   };
 
   const onClickMoveToBoardDetail = (event) => {
-    router.push(`/boards/${event.target.id}`);
+    router.push(`/board/${event.target.id}`);
   };
 
   return (
